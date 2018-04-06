@@ -1,6 +1,6 @@
 # tmux-fzf-url
 
-`tmux-fzf-url` is a tmux plugin for opening urls on screen quickly without mouse.
+`tmux-fzf-url` is a tmux plugin for opening urls from browser quickly without mouse.
 
 ![screenshot](screenshot.gif)
 
@@ -33,7 +33,7 @@ setting value to `@fzf-url-bind` at the tmux config like this:
 
 - Use `tab` to mark multiple urls and open them at once.
 - Hit `ctrl-r` to toggle selection.
-- The tmux theme of screenshot is [tmux-power](https://github.com/wfxr/tmux-power)(currently no `README` :sweat_smile:, will add sometime).
+- The tmux theme showed at screenshot is [tmux-power](https://github.com/wfxr/tmux-power)(currently no `README` :sweat_smile:, will add sometime).
 
 ## License
 
