@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+#===============================================================================
+#   Author: Wenxuan
+#    Email: wenxuangm@gmail.com
+#  Created: 2018-04-06 09:30
+#===============================================================================
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd) && cd "$SCRIPT_DIR"
 
 # $1: option
 # $2: default value
@@ -7,20 +13,6 @@ tmux_get() {
     [ -n "$value" ] && echo $value || echo $2
 }
 
-# $1: option
-# $2: value
-tmux_set() {
-    tmux set-option -gq "$1" "$2"
-}
-
-fzf_cmd="fzf-tmux --multi --exit-0 --cycle --reverse --bind='ctrl-u:half-page-up' --bind='ctrl-d:half-page-down' --bind='ctrl-r:toggle-all' --bind='ctrl-s:toggle-sort'"
-url_regex='\b(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]'
-if  hash xdg-open &>/dev/null; then
-    open_cmd='nohup xdg-open'
-elif hash open &>/dev/null; then
-    open_cmd='open'
-fi
-
 key="$(tmux_get "@fzf-url-bind" "u")"
 
-tmux bind-key "$key" run -b "tmux capture-pane -J -p |grep -oE '"$url_regex"' |sort -u |nl -w3 -s'  ' |$fzf_cmd |awk '{print \$2}'| xargs $open_cmd &>/dev/null || true";
+tmux bind-key "$key" run -b "$SCRIPT_DIR/fzf-url.sh";
