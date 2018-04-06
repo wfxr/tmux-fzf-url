@@ -13,7 +13,7 @@ tmux_set() {
     tmux set-option -gq "$1" "$2"
 }
 
-fzf_cmd="fzf-tmux --multi --cycle --reverse --bind='ctrl-u:half-page-up' --bind='ctrl-d:half-page-down' --bind='ctrl-r:toggle-all' --bind='ctrl-s:toggle-sort'"
+fzf_cmd="fzf-tmux --multi --exit-0 --cycle --reverse --bind='ctrl-u:half-page-up' --bind='ctrl-d:half-page-down' --bind='ctrl-r:toggle-all' --bind='ctrl-s:toggle-sort'"
 url_regex='\b(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]'
 if  hash xdg-open &>/dev/null; then
     open_cmd='nohup xdg-open'
