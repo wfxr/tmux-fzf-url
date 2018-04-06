@@ -6,7 +6,7 @@
 #===============================================================================
 
 fzf_cmd() {
-    fzf-tmux --multi --exit-0 --cycle --reverse --bind='ctrl-u:half-page-up' --bind='ctrl-d:half-page-down' --bind='ctrl-r:toggle-all' --bind='ctrl-s:toggle-sort'
+    fzf-tmux -d 30% --multi --exit-0 --cycle --reverse --bind='ctrl-r:toggle-all' --bind='ctrl-s:toggle-sort'
 }
 
 if  hash xdg-open &>/dev/null; then
@@ -29,5 +29,6 @@ merge "${urls[@]}" "${ips[@]}" |
     sort -u |
     nl -w3 -s '  ' |
     fzf_cmd |
-    awk '{print $2}'| xargs $open_cmd &>/dev/null ||
+    awk '{print $2}'|
+    xargs -n1 -I {} $open_cmd {} &>/dev/null ||
     true
