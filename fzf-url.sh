@@ -16,9 +16,8 @@ elif hash open &>/dev/null; then
 fi
 
 content="$(tmux capture-pane -J -p)"
-IFS=' \n'
-read -ra urls <<< "$(echo "$content" |grep -oE '\b(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]')"
-read -ra ips  <<< "$(echo "$content" |grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9].*)?' | sed 's/\(.*\)/http:\/\/\1/')"
+urls=($(echo "$content" |grep -oE '\b(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]'))
+ips=($(echo "$content" |grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9].*)?' | sed 's/\(.*\)/http:\/\/\1/'))
 
 merge() {
     for item in "$@" ; do
