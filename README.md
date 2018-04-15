@@ -2,7 +2,7 @@
 
 `tmux-fzf-url` is a tmux plugin for opening urls from browser quickly without mouse.
 
-![screenshot](screenshot.gif)
+![screenshot](https://raw.githubusercontent.com/wfxr/i/master/tmux-fzf-url.gif)
 
 ## Install
 
