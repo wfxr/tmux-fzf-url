@@ -35,6 +35,8 @@ set -g @fzf-url-bind 'x'
 - Hit `ctrl - r` to toggle selection.
 - The tmux theme showed at screenshot is [tmux-power](https://github.com/wfxr/tmux-power)(currently no `README` :sweat_smile:, will add sometime).
 
-## License
+## [License](LICENSE.txt)
 
-[MIT](LICENSE.txt)
+The MIT License (MIT)
+
+Copyright (c) 2018 Wenxuan Zhang
