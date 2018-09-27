@@ -1,5 +1,7 @@
 # tmux-fzf-url
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 `tmux-fzf-url` is a tmux plugin for opening urls from browser quickly without mouse.
 
 ![screenshot](https://raw.githubusercontent.com/wfxr/i/master/tmux-fzf-url.gif)
