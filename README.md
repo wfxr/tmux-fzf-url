@@ -1,6 +1,6 @@
 # tmux-fzf-url
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://wfxr.mit-license.org/2018)
 
 `tmux-fzf-url` is a tmux plugin for opening urls from browser quickly without mouse.
 
@@ -37,8 +37,6 @@ set -g @fzf-url-bind 'x'
 - Hit `ctrl - r` to toggle selection.
 - The tmux theme showed at screenshot is [tmux-power](https://github.com/wfxr/tmux-power)(currently no `README` :sweat_smile:, will add sometime).
 
-## [License](LICENSE.txt)
+## License
 
-The MIT License (MIT)
-
-Copyright (c) 2018 Wenxuan Zhang
+[MIT](https://wfxr.mit-license.org/2018) (c) Wenxuan Zhang
