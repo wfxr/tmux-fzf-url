@@ -13,7 +13,7 @@ if  hash xdg-open &>/dev/null; then
     open_cmd='nohup xdg-open'
 elif hash open &>/dev/null; then
     open_cmd='open'
-elif [[ -v BROWSER ]]; then
+elif [ -z ${BROWSER+x} ]; then
     open_cmd="$BROWSER"
 fi
 
