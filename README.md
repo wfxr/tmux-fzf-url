@@ -35,7 +35,7 @@ set -g @fzf-url-bind 'x'
 
 - Use `tab` to mark multiple urls and open them at once.
 - Hit `ctrl - r` to toggle selection.
-- The tmux theme showed at screenshot is [tmux-power](https://github.com/wfxr/tmux-power)(currently no `README` :sweat_smile:, will add sometime).
+- The tmux theme showed at screenshot is [tmux-power](https://github.com/wfxr/tmux-power).
 
 ## License
 
