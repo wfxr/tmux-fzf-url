@@ -33,6 +33,13 @@ setting value to `@fzf-url-bind` at the tmux config like this:
 set -g @fzf-url-bind 'x'
 ```
 
+You can also extend the capture groups by defining `@fzf-url-extra-filter`:
+
+``` tmux
+# simple example for capturing files like 'abc.txt'
+set -g @fzf-url-extra-filter 'grep -oE "\b[a-zA-Z]+\.txt\b"'
+```
+
 ### 💡 Tips
 
 - Use `tab` to mark multiple urls and open them at once.

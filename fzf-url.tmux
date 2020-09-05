@@ -15,5 +15,7 @@ tmux_get() {
 }
 
 key="$(tmux_get '@fzf-url-bind' 'u')"
+extra_filter="$(tmux_get '@fzf-url-extra-filter' '')"
+echo "$extra_filter" > /tmp/filter
 
-tmux bind-key "$key" run -b "$SCRIPT_DIR/fzf-url.sh";
+tmux bind-key "$key" run -b "$SCRIPT_DIR/fzf-url.sh '$extra_filter'";
