@@ -6,7 +6,7 @@
 #===============================================================================
 
 fzf_filter() {
-    fzf-tmux -d 35% -m -0 --no-preview --no-border
+    fzf-tmux -w 50% -m -0 --no-preview --no-border
 }
 
 open_url() {
