@@ -19,7 +19,7 @@ open_url() {
     fi
 }
 
-content="$(tmux capture-pane -J -p)"
+content="$(tmux capture-pane -J -p -S -"$2")"
 
 mapfile -t urls < <(echo "$content" |grep -oE '(https?|ftp|file):/?//[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]')
 mapfile -t wwws < <(echo "$content" |grep -oE 'www\.[a-zA-Z](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}(/\S+)*'                  |sed 's/^\(.*\)$/http:\/\/\1/')
