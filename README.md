@@ -40,6 +40,13 @@ You can also extend the capture groups by defining `@fzf-url-extra-filter`:
 set -g @fzf-url-extra-filter 'grep -oE "\b[a-zA-Z]+\.txt\b"'
 ```
 
+The plugin default captures the current screen. You can set `history_limit` to capture
+the scrollback history:
+
+```tmux
+set -g @history_limit '2000'
+```
+
 ### 💡 Tips
 
 - Use `tab` to mark multiple urls and open them at once.
