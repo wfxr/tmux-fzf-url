@@ -19,7 +19,15 @@ open_url() {
     fi
 }
 
-content="$(tmux capture-pane -J -p -S -"$2")"
+
+limit='screen'
+[[ $# -ge 2 ]] && limit=$2
+
+if [[ $limit == 'screen' ]]; then
+    content="$(tmux capture-pane -J -p)"
+else
+    content="$(tmux capture-pane -J -p -S -"$limit")"
+fi
 
 mapfile -t urls < <(echo "$content" |grep -oE '(https?|ftp|file):/?//[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]')
 mapfile -t wwws < <(echo "$content" |grep -oE 'www\.[a-zA-Z](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}(/\S+)*'                  |sed 's/^\(.*\)$/http:\/\/\1/')
