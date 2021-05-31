@@ -44,7 +44,7 @@ The plugin default captures the current screen. You can set `history_limit` to c
 the scrollback history:
 
 ```tmux
-set -g @history_limit '2000'
+set -g @fzf-url-history-limit '2000'
 ```
 
 ### 💡 Tips
