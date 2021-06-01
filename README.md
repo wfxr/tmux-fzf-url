@@ -47,6 +47,13 @@ the scrollback history:
 set -g @fzf-url-history-limit '2000'
 ```
 
+You can use custom fzf options by defining `@fzf-url-fzf-options`.
+
+```
+# open tmux-fzf-url in a tmux v3.2+ popup
+set -g @fzf-url-fzf-options '-w 50% -h 50% --multi -0 --no-preview --no-border'
+```
+
 ### 💡 Tips
 
 - Use `tab` to mark multiple urls and open them at once.
