@@ -56,9 +56,8 @@ set -g @fzf-url-fzf-options '-w 50% -h 50% --multi -0 --no-preview --no-border'
 
 ### 💡 Tips
 
-- Use `tab` to mark multiple urls and open them at once.
-- Hit `ctrl - r` to toggle selection.
-- The tmux theme showed at screenshot is [tmux-power](https://github.com/wfxr/tmux-power).
+- You can mark multiple urls and open them at once.
+- The tmux theme showed in the screenshot is [tmux-power](https://github.com/wfxr/tmux-power).
 
 ### 🔗 Other plugins
 
