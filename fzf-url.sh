@@ -4,9 +4,15 @@
 #    Email: wenxuangm@gmail.com
 #  Created: 2018-04-06 12:12
 #===============================================================================
+get_fzf_options() {
+    local fzf_options
+    local fzf_default_options='-d 35% -m -0 --no-preview --no-border'
+    fzf_options="$(tmux show -gqv '@fzf-url-fzf-options')"
+    [ -n "$fzf_options" ] && echo "$fzf_options" || echo "$fzf_default_options"
+}
 
 fzf_filter() {
-    fzf-tmux -d 35% -m -0 --no-preview --no-border
+  eval "fzf-tmux $(get_fzf_options)"
 }
 
 open_url() {
