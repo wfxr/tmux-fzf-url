@@ -10,7 +10,9 @@ A tmux plugin for opening urls from browser quickly without mouse.
 
 ### 📥 Installation
 
-Make sure you have [`fzf`](https://github.com/junegunn/fzf) installed.
+Prerequisites:
+* [`fzf`](https://github.com/junegunn/fzf)
+* [`bash`](https://www.gnu.org/software/bash/) >= `4.0` (macOS ships with `bash` `3.2`!)
 
 **Install using [TPM](https://github.com/tmux-plugins/tpm)**
 
