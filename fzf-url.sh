@@ -4,9 +4,17 @@
 #    Email: wenxuangm@gmail.com
 #  Created: 2018-04-06 12:12
 #===============================================================================
+get_fzf_options() {
+    local fzf_options
+    local fzf_default_options='-d 35% -m -0 --no-preview --no-border'
+    fzf_options="$(tmux show -gqv '@fzf-url-fzf-options')"
+    [ -n "$fzf_options" ] && echo "$fzf_options" || echo "$fzf_default_options"
+}
 
 fzf_filter() {
     fzf-tmux $FZF_TMUX_OPTS -m -0 --no-preview --no-border
+    #TODO investigate if the upstream change supporst $FZF_TMUX_OPTS
+    #eval "fzf-tmux $(get_fzf_options)"
 }
 
 open_url() {
@@ -19,10 +27,18 @@ open_url() {
     fi
 }
 
-content="$(tmux capture-pane -J -p)"
+
+limit='screen'
+[[ $# -ge 2 ]] && limit=$2
+
+if [[ $limit == 'screen' ]]; then
+    content="$(tmux capture-pane -J -p)"
+else
+    content="$(tmux capture-pane -J -p -S -"$limit")"
+fi
 
 mapfile -t urls < <(echo "$content" |grep -oE '(https?|ftp|file):/?//[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]')
-mapfile -t wwws < <(echo "$content" |grep -oE 'www\.[a-zA-Z](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}(/\S+)*'                  |sed 's/^\(.*\)$/http:\/\/\1/')
+mapfile -t wwws < <(echo "$content" |grep -oE '(http?s://)?www\.[a-zA-Z](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}(/\S+)*' | grep -vE '^https?://' |sed 's/^\(.*\)$/http:\/\/\1/')
 mapfile -t ips  < <(echo "$content" |grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(/\S+)*' |sed 's/^\(.*\)$/http:\/\/\1/')
 mapfile -t gits < <(echo "$content" |grep -oE '(ssh://)?git@\S*' | sed 's/:/\//g' | sed 's/^\(ssh\/\/\/\)\{0,1\}git@\(.*\)$/https:\/\/\2/')
 
@@ -35,7 +51,7 @@ items=$(printf '%s\n' "${urls[@]}" "${wwws[@]}" "${ips[@]}" "${gits[@]}" "${extr
     sort -u |
     nl -w3 -s '  '
 )
-[ -z "$items" ] && exit
+[ -z "$items" ] && tmux display 'tmux-fzf-url: no URLs found' && exit
 
 mapfile -t chosen < <(fzf_filter <<< "$items" | awk '{print $2}')
 
