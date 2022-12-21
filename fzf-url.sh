@@ -13,8 +13,6 @@ get_fzf_options() {
 
 fzf_filter() {
     eval "fzf-tmux $(get_fzf_options)"
-    #TODO investigate if the upstream change supporst $FZF_TMUX_OPTS
-    #eval "fzf-tmux $(get_fzf_options)"
 }
 
 open_url() {
