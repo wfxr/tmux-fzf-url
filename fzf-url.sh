@@ -12,7 +12,9 @@ get_fzf_options() {
 }
 
 fzf_filter() {
-  eval "fzf-tmux $(get_fzf_options)"
+    fzf-tmux $FZF_TMUX_OPTS -m -0 --no-preview --no-border
+    #TODO investigate if the upstream change supporst $FZF_TMUX_OPTS
+    #eval "fzf-tmux $(get_fzf_options)"
 }
 
 open_url() {
