@@ -54,9 +54,10 @@ items=$(printf '%s\n' "${urls[@]}" "${wwws[@]}" "${gh[@]}" "${ips[@]}" "${gits[@
 
 chosen=$(fzf_filter <<< "$items" | awk '{print $2}')
 
-if [ -z "${chosen[@]}" ]
-  exit 0
+if [ -z $chosen ]
 then
+  exit 0
+else
   for item in "${chosen[@]}"; do
       open_url "$item" &>"/tmp/tmux-$(id -u)-fzf-url.log"
   done
