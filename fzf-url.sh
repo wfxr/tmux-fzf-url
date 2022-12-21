@@ -12,7 +12,7 @@ get_fzf_options() {
 }
 
 fzf_filter() {
-    eval "fzf-tmux $(get_fzf_options)"
+  eval "fzf-tmux $(get_fzf_options)"
 }
 
 open_url() {
