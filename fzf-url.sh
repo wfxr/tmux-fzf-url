@@ -51,8 +51,7 @@ items=$(printf '%s\n' "${urls[@]}" "${wwws[@]}" "${ips[@]}" "${gits[@]}" "${extr
 )
 [ -z "$items" ] && tmux display 'tmux-fzf-url: no URLs found' && exit
 
-chosen=$(fzf_filter <<< "$items" | awk '{print $2}')
-
-for item in "${chosen[@]}"; do
-    open_url "$item" &>"/tmp/tmux-$(id -u)-fzf-url.log"
-done
+printf '%s' "$items" | fzf_filter | awk '{print $2}' | \
+    while read -r chosen; do
+        open_url "$chosen" &>"/tmp/tmux-$(id -u)-fzf-url.log"
+    done
