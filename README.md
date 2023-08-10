@@ -11,15 +11,18 @@ A tmux plugin for opening urls from browser quickly without mouse.
 ### 📥 Installation
 
 Prerequisites:
-* [`fzf`](https://github.com/junegunn/fzf)
-* [`bash`](https://www.gnu.org/software/bash/)
+
+- [tmux](https://github.com/tmux/tmux) (>= 3.2)
+- [tpm](https://github.com/tmux-plugins/tpm)
+- [`fzf`](https://github.com/junegunn/fzf)
+- [`bash`](https://www.gnu.org/software/bash/)
 
 **Install using [TPM](https://github.com/tmux-plugins/tpm)**
 
 Add this line to your tmux config file, then hit `prefix + I`:
 
-``` tmux
-set -g @plugin 'wfxr/tmux-fzf-url'
+```tmux
+set -g @plugin 'joshmedeski/tmux-fzf-url'
 ```
 
 **Install manually**
@@ -31,13 +34,13 @@ Clone this repo somewhere and source `fzf-url.tmux` at the config file.
 The default key-binding is `u`(of course prefix hit is needed), it can be modified by
 setting value to `@fzf-url-bind` at the tmux config like this:
 
-``` tmux
+```tmux
 set -g @fzf-url-bind 'x'
 ```
 
 You can also extend the capture groups by defining `@fzf-url-extra-filter`:
 
-``` tmux
+```tmux
 # simple example for capturing files like 'abc.txt'
 set -g @fzf-url-extra-filter 'grep -oE "\b[a-zA-Z]+\.txt\b"'
 ```
