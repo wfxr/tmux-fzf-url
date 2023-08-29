@@ -20,4 +20,4 @@ extra_filter="$(tmux_get '@fzf-url-extra-filter' '')"
 custom_open="$(tmux_get '@fzf-url-open' '')"
 echo "$extra_filter" > /tmp/filter
 
-tmux bind-key "$key" run -b "$SCRIPT_DIR/fzf-url.sh '$extra_filter' $history_limit $custom_open";
+tmux bind-key "$key" run -b "$SCRIPT_DIR/fzf-url.sh '$extra_filter' $history_limit '$custom_open'";
