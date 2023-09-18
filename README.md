@@ -56,6 +56,14 @@ You can use custom fzf options by defining `@fzf-url-fzf-options`.
 set -g @fzf-url-fzf-options '-w 50% -h 50% --multi -0 --no-preview --no-border'
 ```
 
+By default, `tmux-fzf-url` will use `xdg-open`, `open`, or the `BROWSER`
+environment variable to open the url, respectively. If you want to use a
+different command, you can set `@fzf-url-open` to the command you want to use.
+
+```tmux
+set -g @fzf-url-open "firefox"
+```
+
 ### 💡 Tips
 
 - You can mark multiple urls and open them at once.

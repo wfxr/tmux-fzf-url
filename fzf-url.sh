@@ -15,8 +15,11 @@ fzf_filter() {
   eval "fzf-tmux $(get_fzf_options)"
 }
 
+custom_open=$3
 open_url() {
-    if hash xdg-open &>/dev/null; then
+    if [[ -n $custom_open ]]; then 
+        $custom_open "$@"
+    elif hash xdg-open &>/dev/null; then
         nohup xdg-open "$@"
     elif hash open &>/dev/null; then
         nohup open "$@"
@@ -24,7 +27,6 @@ open_url() {
         nohup "$BROWSER" "$@"
     fi
 }
-
 
 limit='screen'
 [[ $# -ge 2 ]] && limit=$2
