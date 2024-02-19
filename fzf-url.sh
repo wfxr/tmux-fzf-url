@@ -6,7 +6,7 @@
 #===============================================================================
 get_fzf_options() {
     local fzf_options
-    local fzf_default_options='-d 35% -m -0 --no-preview --no-border'
+    local fzf_default_options='-w 100% -h 50% --multi -0 --no-preview'
     fzf_options="$(tmux show -gqv '@fzf-url-fzf-options')"
     [ -n "$fzf_options" ] && echo "$fzf_options" || echo "$fzf_default_options"
 }
