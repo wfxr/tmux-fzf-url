@@ -17,7 +17,7 @@ fzf_filter() {
 
 custom_open=$3
 open_url() {
-    if [[ -n $custom_open ]]; then 
+    if [[ -n $custom_open ]]; then
         $custom_open "$@"
     elif hash xdg-open &>/dev/null; then
         nohup xdg-open "$@"
@@ -35,6 +35,10 @@ if [[ $limit == 'screen' ]]; then
     content="$(tmux capture-pane -J -p -e)"
 else
     content="$(tmux capture-pane -J -p -e -S -"$limit")"
+fi
+
+if [[ $4 == 'no-newlines' ]]; then
+  content=$(echo "$content" | tr -d '\n')
 fi
 
 urls=$(echo "$content" |grep -oE '(https?|ftp|file):/?//[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]')
