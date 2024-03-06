@@ -47,9 +47,13 @@ if [[ $# -ge 1 && "$1" != '' ]]; then
     extras=$(echo "$content" |eval "$1")
 fi
 
+# If ansifilter is unavailable, define it as a noop.
+if ! command -v ansifilter > /dev/null; then ansifilter() { while read -r data; do echo "$data"; done }; fi
+
 items=$(printf '%s\n' "${urls[@]}" "${wwws[@]}" "${gh[@]}" "${ips[@]}" "${gits[@]}" "${extras[@]}" |
     grep -v '^$' |
     sort -u |
+    ansifilter |
     nl -w3 -s '  '
 )
 [ -z "$items" ] && tmux display 'tmux-fzf-url: no URLs found' && exit
