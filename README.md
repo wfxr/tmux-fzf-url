@@ -14,6 +14,9 @@ Prerequisites:
 * [`fzf`](https://github.com/junegunn/fzf)
 * [`bash`](https://www.gnu.org/software/bash/)
 
+Optional dependency:
+* [`ansifilter`](https://gitlab.com/saalen/ansifilter)
+
 **Install using [TPM](https://github.com/tmux-plugins/tpm)**
 
 Add this line to your tmux config file, then hit `prefix + I`:
