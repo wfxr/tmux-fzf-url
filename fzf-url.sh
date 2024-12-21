@@ -32,9 +32,9 @@ limit='screen'
 [[ $# -ge 2 ]] && limit=$2
 
 if [[ $limit == 'screen' ]]; then
-    content="$(tmux capture-pane -J -p -e)"
+    content="$(tmux capture-pane -J -p -e |sed -r 's/\x1B\[[0-9;]*[mK]//g'))"
 else
-    content="$(tmux capture-pane -J -p -e -S -"$limit")"
+    content="$(tmux capture-pane -J -p -e -S -"$limit" |sed -r 's/\x1B\[[0-9;]*[mK]//g'))"
 fi
 
 urls=$(echo "$content" |grep -oE '(https?|ftp|file):/?//[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]')
