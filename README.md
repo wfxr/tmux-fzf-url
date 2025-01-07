@@ -69,6 +69,10 @@ set -g @fzf-url-open "firefox"
 - You can mark multiple urls and open them at once.
 - The tmux theme showed in the screenshot is [tmux-power](https://github.com/wfxr/tmux-power).
 
+### 🧩 Similar projects
+
+- [tmux-fzf-links](https://github.com/alberti42/tmux-fzf-links): A more versatile tmux plugin that allows you to search for and open links.
+
 ### 🔗 Other plugins
 
 - [tmux-power](https://github.com/wfxr/tmux-power)
