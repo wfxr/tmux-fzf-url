@@ -23,6 +23,7 @@ fzf_filter() {
 }
 
 custom_open=$3
+sort_by=$4
 open_url() {
     if [[ -n $custom_open ]]; then
         $custom_open "$@"
@@ -44,21 +45,44 @@ else
     content="$(tmux capture-pane -J -p -e -S -"$limit" |sed -r 's/\x1B\[[0-9;]*[mK]//g'))"
 fi
 
-urls=$(echo "$content" |grep -oE '(https?|ftp|file):/?//[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]')
-wwws=$(echo "$content" |grep -oE '(http?s://)?www\.[a-zA-Z](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}(/\S+)*' | grep -vE '^https?://' |sed 's/^\(.*\)$/http:\/\/\1/')
-ips=$(echo "$content" |grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(/\S+)*' |sed 's/^\(.*\)$/http:\/\/\1/')
-gits=$(echo "$content" |grep -oE '(ssh://)?git@\S*' | sed 's/:/\//g' | sed 's/^\(ssh\/\/\/\)\{0,1\}git@\(.*\)$/https:\/\/\2/')
-gh=$(echo "$content" |grep -oE "['\"]([_A-Za-z0-9-]*/[_.A-Za-z0-9-]*)['\"]" | sed "s/['\"]//g" | sed 's#.#https://github.com/&#')
+# Extract URLs with line numbers to preserve position
+urls=$(echo "$content" | grep -noE '(https?|ftp|file):/?//[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]')
+wwws=$(echo "$content" | grep -noE '(http?s://)?www\.[a-zA-Z](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}(/\S+)*' | grep -vE ':[0-9]*:https?://' | sed 's/^\([0-9]*\):\(.*\)$/\1:http:\/\/\2/')
+ips=$(echo "$content" | grep -noE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(/\S+)*' | sed 's/^\([0-9]*\):\(.*\)$/\1:http:\/\/\2/')
+gits=$(echo "$content" | grep -noE '(ssh://)?git@\S*' | sed 's/:/\//g' | sed 's/^\([0-9]*\)\/\/\(ssh\/\/\/\)\{0,1\}git@\(.*\)$/\1:https:\/\/\3/')
+gh=$(echo "$content" | grep -noE "['\"]([_A-Za-z0-9-]*/[_.A-Za-z0-9-]*)['\"]" | sed "s/['\"]//g" | sed 's/^\([0-9]*\):\(.*\)$/\1:https:\/\/github.com\/\2/')
 
 if [[ $# -ge 1 && "$1" != '' ]]; then
-    extras=$(echo "$content" |eval "$1")
+    extras=$(echo "$content" | nl -nln | eval "$1" | sed 's/^\([0-9]*\)\t\(.*\)$/\1:\2/')
 fi
 
-items=$(printf '%s\n' "${urls[@]}" "${wwws[@]}" "${gh[@]}" "${ips[@]}" "${gits[@]}" "${extras[@]}" |
-    grep -v '^$' |
-    sort -u |
-    nl -w3 -s '  '
-)
+# Combine all URLs with their line numbers
+all_urls=$(printf '%s\n' "${urls[@]}" "${wwws[@]}" "${gh[@]}" "${ips[@]}" "${gits[@]}" "${extras[@]}" | grep -v '^$')
+
+# Sort and deduplicate based on sort_by option
+if [[ "$sort_by" == "recency" ]]; then
+    # Recency behavior: adjust sort order based on fzf layout
+    fzf_options="$(get_fzf_options)"
+    if [[ "$fzf_options" == *"--reverse"* ]]; then
+        # Reverse layout (search at top): oldest URLs first so recent ones are closest to search
+        sort_order="-n"
+    else
+        # Default layout (search at bottom): newest URLs first so recent ones are closest to search
+        sort_order="-nr"
+    fi
+    
+    items=$(echo "$all_urls" | awk -F: '
+        {
+            url = substr($0, index($0, ":") + 1)
+            if (!seen[url]) {
+                seen[url] = 1
+                print $1 ":" url
+            }
+        }' | sort $sort_order | cut -d: -f2- | nl -w3 -s '  ')
+else
+    # Default alphabetical behavior: sort alphabetically and remove duplicates
+    items=$(echo "$all_urls" | cut -d: -f2- | sort -u | nl -w3 -s '  ')
+fi
 [ -z "$items" ] && tmux display 'tmux-fzf-url: no URLs found' && exit
 
 fzf_filter <<< "$items" | awk '{print $2}' | \
