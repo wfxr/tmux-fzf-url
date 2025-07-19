@@ -4,20 +4,27 @@
 #    Email: wenxuangm@gmail.com
 #  Created: 2018-04-06 12:12
 #===============================================================================
-get_fzf_options() {
-    local fzf_options
-    local fzf_default_options='-w 100% -h 50% --multi -0 --no-preview'
-    fzf_options="$(tmux show -gqv '@fzf-url-fzf-options')"
-    [ -n "$fzf_options" ] && echo "$fzf_options" || echo "$fzf_default_options"
+version_ge() {
+    [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" = "$2" ]
 }
 
+# shellcheck disable=SC2086
 fzf_filter() {
-  eval "fzf-tmux $(get_fzf_options)"
+    local fzf_version fzf_options
+    fzf_version="$(fzf --version 2>/dev/null | awk '{print $1}')"
+    fzf_options="$(tmux show -gqv '@fzf-url-fzf-options')"
+
+    # fzf after version 0.53.0 supports native tmux integration
+    if version_ge "$fzf_version" "0.53.0"; then
+        fzf ${fzf_options:---tmux center,100%,50% --multi --exit-0 --no-preview}
+    else
+        fzf-tmux ${fzf_options:--w 100% -h 50% --multi --exit-0 --no-preview}
+    fi
 }
 
 custom_open=$3
 open_url() {
-    if [[ -n $custom_open ]]; then 
+    if [[ -n $custom_open ]]; then
         $custom_open "$@"
     elif hash xdg-open &>/dev/null; then
         nohup xdg-open "$@"
