@@ -28,11 +28,18 @@ Clone this repo somewhere and source `fzf-url.tmux` at the config file.
 
 ### 📝 Usage
 
-The default key-binding is `u`(of course prefix hit is needed), it can be modified by
+The default main key-binding is `u`(of course prefix hit is needed), it can be modified by
 setting value to `@fzf-url-bind` at the tmux config like this:
 
 ``` tmux
 set -g @fzf-url-bind 'x'
+```
+
+A secondary key-binding, eliminating newlines from the capture, is `U` , it can be modified by
+setting value to `@fzf-url-bind-no-newlines`:
+
+``` tmux
+set -g @fzf-url-bind-no-newlines 'X'
 ```
 
 You can also extend the capture groups by defining `@fzf-url-extra-filter`:
@@ -68,6 +75,7 @@ set -g @fzf-url-open "firefox"
 
 - You can mark multiple urls and open them at once.
 - The tmux theme showed in the screenshot is [tmux-power](https://github.com/wfxr/tmux-power).
+- The no-newlines key-binding is useful for some programs badly wrapping long Urls, e.g., neomutt mail client.
 
 ### 🧩 Similar projects
 
