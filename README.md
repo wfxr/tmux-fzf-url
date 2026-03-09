@@ -87,7 +87,7 @@ The plugin automatically recognizes and extracts the following formats:
 ### 💡 Tips
 
 - You can mark multiple urls and open them at once.
-- The tmux theme showed in the screenshot is [tmux-power](https://github.com/wfxr/tmux-power).
+- The tmux theme shown in the screenshot is [tmux-power](https://github.com/wfxr/tmux-power).
 
 ### 🛠️ Development
 

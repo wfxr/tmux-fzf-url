@@ -13,11 +13,16 @@
 ## Repository Structure
 
 ```
-├── fzf-url.tmux       # Plugin entry point: reads tmux options, registers keybinding
-├── fzf-url.sh         # Core logic: captures pane content, extracts URLs, opens selection
-├── README.md          # User documentation
-├── LICENSE.txt        # MIT license
-└── FUNDING.yml        # Sponsorship info
+├── fzf-url.tmux              # Plugin entry point: reads tmux options, registers keybinding
+├── fzf-url.sh                # Core logic: captures pane content, extracts URLs, opens selection
+├── test/
+│   ├── libs/                 # bats-core, bats-assert, bats-support (git submodules)
+│   ├── test_helper.bash      # Shared setup: source fzf-url.sh, load assertions
+│   └── *.bats                # Test files for each extraction function
+├── .github/workflows/test.yml # CI: cross-platform test matrix (ubuntu + macOS)
+├── README.md                 # User documentation
+├── LICENSE.txt               # MIT license
+└── FUNDING.yml               # Sponsorship info
 ```
 
 ## Architecture
@@ -61,7 +66,7 @@ The plugin extracts the following URL formats from pane content:
 ## Development Guidelines
 
 - Keep the codebase minimal — the entire plugin is two short shell scripts.
-- Use POSIX-compatible constructs where possible; the scripts run under `bash`.
+- The scripts use Bash features (`[[ ]]`, `$(...)`, etc.) and require `bash`.
 - URL regex patterns in `fzf-url.sh` are intentionally kept as `grep -oE` expressions for simplicity.
 - When modifying fzf invocation, maintain backward compatibility with older fzf versions (the `version_ge` function handles version detection).
 - Pane content is captured via `tmux capture-pane -J -p -e` and ANSI sequences are stripped with `sed`.
@@ -69,10 +74,22 @@ The plugin extracts the following URL formats from pane content:
 
 ## Testing
 
-There is no automated test suite. Manual testing workflow:
+Automated tests use [bats-core](https://github.com/bats-core/bats-core) (added as git submodules):
+
+```bash
+# First-time setup (if cloned without --recurse-submodules)
+git submodule update --init --recursive
+
+# Run all tests
+./test/libs/bats-core/bin/bats test/*.bats
+```
+
+The test suite covers each extraction function (`extract_urls`, `extract_wwws`, `extract_ips`, `extract_gits`, `extract_gh`), `strip_ansi`, `version_ge`, and integration scenarios. `fzf-url.sh` exposes a source guard (`__FZF_URL_TESTING=1`) so tests can source the functions without executing the main logic.
+
+GitHub Actions CI runs the tests on both ubuntu and macOS to catch GNU/BSD compatibility issues.
+
+Manual testing is still recommended for end-to-end verification:
 
 1. Install the plugin in a tmux session (via TPM or source `fzf-url.tmux`)
 2. Display content containing various URL formats in the pane
 3. Press `prefix + u` (or configured key) and verify URLs are correctly extracted and selectable
-4. Test with different `@fzf-url-*` option combinations
-5. Test on both Linux (`xdg-open`) and macOS (`open`)
