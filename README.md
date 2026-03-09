@@ -89,6 +89,23 @@ The plugin automatically recognizes and extracts the following formats:
 - You can mark multiple urls and open them at once.
 - The tmux theme showed in the screenshot is [tmux-power](https://github.com/wfxr/tmux-power).
 
+### 🛠️ Development
+
+``` bash
+# Clone with test dependencies
+git clone --recurse-submodules https://github.com/wfxr/tmux-fzf-url
+cd tmux-fzf-url
+
+# Run tests
+./test/libs/bats-core/bin/bats test/*.bats
+```
+
+Tests use [bats-core](https://github.com/bats-core/bats-core). If you already cloned without `--recurse-submodules`, run:
+
+``` bash
+git submodule update --init --recursive
+```
+
 ### 🧩 Similar projects
 
 - [tmux-fzf-links](https://github.com/alberti42/tmux-fzf-links): A more versatile tmux plugin that allows you to search for and open links.
