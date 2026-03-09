@@ -28,6 +28,18 @@ setup() {
     assert_output "http://172.16.0.1/status"
 }
 
+@test "extract_ips: quoted IP with path strips quotes" {
+    run bash -c "echo '\"192.168.1.1/status\"' | extract_ips"
+    assert_success
+    assert_output "http://192.168.1.1/status"
+    run bash -c "echo \"'192.168.1.1:8080/status'\" | extract_ips"
+    assert_success
+    assert_output "http://192.168.1.1:8080/status"
+    run bash -c 'echo "\`192.168.1.1/status\`" | extract_ips'
+    assert_success
+    assert_output "http://192.168.1.1/status"
+}
+
 @test "extract_ips: empty input produces no output" {
     run bash -c 'echo "" | extract_ips'
     assert_success

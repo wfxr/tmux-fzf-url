@@ -28,6 +28,18 @@ setup() {
     assert_output ""
 }
 
+@test "extract_wwws: quoted www with path strips quotes" {
+    run bash -c "echo '\"www.example.com/path\"' | extract_wwws"
+    assert_success
+    assert_output "http://www.example.com/path"
+    run bash -c "echo \"'www.example.com/path'\" | extract_wwws"
+    assert_success
+    assert_output "http://www.example.com/path"
+    run bash -c 'echo "\`www.example.com/path\`" | extract_wwws'
+    assert_success
+    assert_output "http://www.example.com/path"
+}
+
 @test "extract_wwws: empty input produces no output" {
     run bash -c 'echo "" | extract_wwws'
     assert_success

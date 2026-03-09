@@ -44,18 +44,18 @@ extract_urls() {
 }
 
 extract_wwws() {
-    grep -oE '(https?://)?www\.[a-zA-Z](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}(/\S+)*' |
+    grep -oE '(https?://)?www\.[a-zA-Z](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}(/[^[:space:]'"'"'"`]+)*' |
         grep -vE '^https?://' |
         sed 's/^\(.*\)$/http:\/\/\1/'
 }
 
 extract_ips() {
-    grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(/\S+)*' |
+    grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(/[^[:space:]'"'"'"`]+)*' |
         sed 's/^\(.*\)$/http:\/\/\1/'
 }
 
 extract_gits() {
-    grep -oE '(ssh://)?git@\S*' |
+    grep -oE '(ssh://)?git@[^[:space:]'"'"'"`]*' |
         sed 's/:/\//g' |
         sed 's/^\(ssh\/\/\/\)\{0,1\}git@\(.*\)$/https:\/\/\2/'
 }
