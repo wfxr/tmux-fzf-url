@@ -23,7 +23,6 @@ fzf_filter() {
     fi
 }
 
-custom_open=$3
 open_url() {
     if [[ -n $custom_open ]]; then
         $custom_open "$@"
@@ -36,20 +35,55 @@ open_url() {
     fi
 }
 
+strip_ansi() {
+    sed -E 's/\x1B\[[0-9;]*[mK]//g'
+}
+
+extract_urls() {
+    grep -oE '(https?|ftp|file):/?//[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]'
+}
+
+extract_wwws() {
+    grep -oE '(https?://)?www\.[a-zA-Z](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}(/\S+)*' |
+        grep -vE '^https?://' |
+        sed 's/^\(.*\)$/http:\/\/\1/'
+}
+
+extract_ips() {
+    grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(/\S+)*' |
+        sed 's/^\(.*\)$/http:\/\/\1/'
+}
+
+extract_gits() {
+    grep -oE '(ssh://)?git@\S*' |
+        sed 's/:/\//g' |
+        sed 's/^\(ssh\/\/\/\)\{0,1\}git@\(.*\)$/https:\/\/\2/'
+}
+
+extract_gh() {
+    grep -oE "['\"]([_A-Za-z0-9-]*/[_.A-Za-z0-9-]*)['\"]" |
+        sed "s/['\"]//g" |
+        sed 's#.#https://github.com/&#'
+}
+
+# Source guard: when testing, stop here and don't execute main logic
+[[ "${__FZF_URL_TESTING:-}" == 1 ]] && return 0 2>/dev/null || true
+
+custom_open=$3
 limit='screen'
 [[ $# -ge 2 ]] && limit=$2
 
 if [[ $limit == 'screen' ]]; then
-    content="$(tmux capture-pane -J -p -e |sed -E 's/\x1B\[[0-9;]*[mK]//g')"
+    content="$(tmux capture-pane -J -p -e | strip_ansi)"
 else
-    content="$(tmux capture-pane -J -p -e -S -"$limit" |sed -E 's/\x1B\[[0-9;]*[mK]//g')"
+    content="$(tmux capture-pane -J -p -e -S -"$limit" | strip_ansi)"
 fi
 
-urls=$(echo "$content" |grep -oE '(https?|ftp|file):/?//[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]')
-wwws=$(echo "$content" |grep -oE '(https?://)?www\.[a-zA-Z](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}(/\S+)*' | grep -vE '^https?://' |sed 's/^\(.*\)$/http:\/\/\1/')
-ips=$(echo "$content" |grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(/\S+)*' |sed 's/^\(.*\)$/http:\/\/\1/')
-gits=$(echo "$content" |grep -oE '(ssh://)?git@\S*' | sed 's/:/\//g' | sed 's/^\(ssh\/\/\/\)\{0,1\}git@\(.*\)$/https:\/\/\2/')
-gh=$(echo "$content" |grep -oE "['\"]([_A-Za-z0-9-]*/[_.A-Za-z0-9-]*)['\"]" | sed "s/['\"]//g" | sed 's#.#https://github.com/&#')
+urls=$(echo "$content" | extract_urls)
+wwws=$(echo "$content" | extract_wwws)
+ips=$(echo "$content" | extract_ips)
+gits=$(echo "$content" | extract_gits)
+gh=$(echo "$content" | extract_gh)
 
 if [[ $# -ge 1 && "$1" != '' ]]; then
     extras=$(echo "$content" |eval "$1")
