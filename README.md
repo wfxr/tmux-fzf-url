@@ -56,6 +56,23 @@ You can use custom fzf options by defining `@fzf-url-fzf-options`.
 set -g @fzf-url-fzf-options '-w 50% -h 50% --multi -0 --no-preview --no-border'
 ```
 
+You can control how URLs are sorted by setting `@fzf-url-sort-by`:
+
+```tmux
+# Sort URLs alphabetically (default)
+set -g @fzf-url-sort-by 'alphabetical'
+
+# Sort URLs by recency - most recent URLs closest to search bar
+set -g @fzf-url-sort-by 'recency'
+```
+
+**Smart Layout Detection**: When using recency sorting, the plugin automatically detects your fzf layout and adjusts the sort order to keep the most recent URLs closest to the search bar:
+
+- **Default layout** (search at bottom): Recent URLs appear first (top of list)
+- **Reverse layout** (with `--reverse` option): Recent URLs appear last (bottom of list)
+
+This ensures optimal accessibility regardless of your preferred fzf layout.
+
 By default, `tmux-fzf-url` will use `xdg-open`, `open`, or the `BROWSER`
 environment variable to open the url, respectively. If you want to use a
 different command, you can set `@fzf-url-open` to the command you want to use.
