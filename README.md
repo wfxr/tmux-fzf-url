@@ -11,6 +11,7 @@ A tmux plugin for opening urls from browser quickly without mouse.
 ### 📥 Installation
 
 Prerequisites:
+* [`tmux`](https://github.com/tmux/tmux)
 * [`fzf`](https://github.com/junegunn/fzf)
 * [`bash`](https://www.gnu.org/software/bash/)
 
@@ -24,7 +25,15 @@ set -g @plugin 'wfxr/tmux-fzf-url'
 
 **Install manually**
 
-Clone this repo somewhere and source `fzf-url.tmux` at the config file.
+``` bash
+git clone https://github.com/wfxr/tmux-fzf-url ~/.tmux/plugins/tmux-fzf-url
+```
+
+Then add the following line to your `~/.tmux.conf`:
+
+``` tmux
+run-shell ~/.tmux/plugins/tmux-fzf-url/fzf-url.tmux
+```
 
 ### 📝 Usage
 
@@ -51,8 +60,8 @@ set -g @fzf-url-history-limit '2000'
 
 You can use custom fzf options by defining `@fzf-url-fzf-options`.
 
-```
-# open tmux-fzf-url in a tmux v3.2+ popup
+```tmux
+# these options are passed to fzf-tmux
 set -g @fzf-url-fzf-options '-w 50% -h 50% --multi -0 --no-preview --no-border'
 ```
 
@@ -63,6 +72,17 @@ different command, you can set `@fzf-url-open` to the command you want to use.
 ```tmux
 set -g @fzf-url-open "firefox"
 ```
+
+### 🔍 Supported URL Types
+
+The plugin automatically recognizes and extracts the following formats:
+
+- **Standard URLs** — `https://`, `http://`, `ftp://`, `file://`
+- **WWW URLs** — `www.example.com` (auto-prefixed with `http://`)
+- **IP addresses** — `192.168.1.1`, `10.0.0.1:8080/path`
+- **Git SSH URLs** — `git@github.com:user/repo` (converted to `https://`)
+- **GitHub shorthand** — `'user/repo'` or `"user/repo"` (converted to `https://github.com/`)
+- **Custom patterns** — via `@fzf-url-extra-filter`
 
 ### 💡 Tips
 
