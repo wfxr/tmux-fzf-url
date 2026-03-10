@@ -64,6 +64,24 @@ different command, you can set `@fzf-url-open` to the command you want to use.
 set -g @fzf-url-open "firefox"
 ```
 
+You can copy the selected URL to your clipboard instead of opening it by pressing
+`ctrl-y` inside the picker. The key is configurable via `@fzf-url-copy-bind` and
+the clipboard command is auto-detected per platform (WSL2, macOS, Wayland, X11)
+but can be overridden with `@fzf-url-copy`. If no clipboard tool is detected, the
+copy keybinding is silently omitted.
+
+```tmux
+# Change the in-fzf key for copy-to-clipboard (default: ctrl-y)
+set -g @fzf-url-copy-bind 'ctrl-u'
+
+# Override the clipboard command (auto-detected by default)
+set -g @fzf-url-copy "xclip -selection clipboard"
+```
+
+> **Note:** `@fzf-url-copy` must be a single command or path to a script. Shell
+> metacharacters (pipes, redirections) are not supported — wrap complex commands
+> in a shell script instead.
+
 ### 💡 Tips
 
 - You can mark multiple urls and open them at once.

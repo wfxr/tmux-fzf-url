@@ -12,10 +12,20 @@ get_fzf_options() {
 }
 
 fzf_filter() {
-  eval "fzf-tmux $(get_fzf_options)"
+  local copy_cmd copy_key
+  local -a fzf_args
+  copy_cmd=$(get_copy_command)
+  copy_key="${copy_bind_arg:-ctrl-y}"
+  read -ra fzf_args <<< "$(get_fzf_options)"
+  if [[ -n "$copy_cmd" ]]; then
+    fzf_args+=(--bind "${copy_key}:execute-silent(printf '%s\n' {+} | awk '{print \$2}' | ${copy_cmd})+abort")
+  fi
+  fzf-tmux "${fzf_args[@]}"
 }
 
 custom_open=$3
+custom_copy=$4
+copy_bind_arg=$5
 open_url() {
     if [[ -n $custom_open ]]; then 
         $custom_open "$@"
@@ -25,6 +35,29 @@ open_url() {
         nohup open "$@"
     elif [[ -n $BROWSER ]]; then
         nohup "$BROWSER" "$@"
+    fi
+}
+
+detect_clipboard() {
+    # Returns empty string if no clipboard tool is available — callers must handle this case
+    if grep -qi microsoft /proc/version 2>/dev/null && hash clip.exe 2>/dev/null; then
+        echo "clip.exe"
+    elif [[ "$(uname)" == "Darwin" ]]; then
+        echo "pbcopy"
+    elif hash wl-copy 2>/dev/null; then
+        echo "wl-copy"
+    elif hash xclip 2>/dev/null; then
+        echo "xclip -selection clipboard"
+    elif hash xsel 2>/dev/null; then
+        echo "xsel --clipboard --input"
+    fi
+}
+
+get_copy_command() {
+    if [[ -n "$custom_copy" ]]; then
+        echo "$custom_copy"
+    else
+        detect_clipboard
     fi
 }
 
