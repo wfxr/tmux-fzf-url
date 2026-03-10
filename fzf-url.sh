@@ -19,6 +19,12 @@ custom_open=$3
 open_url() {
     if [[ -n $custom_open ]]; then 
         $custom_open "$@"
+    elif grep -qi microsoft /proc/version 2>/dev/null; then
+      if hash wslview &>/dev/null; then
+        wslview "$@"
+      else
+        explorer.exe "$@"
+      fi
     elif hash xdg-open &>/dev/null; then
         nohup xdg-open "$@"
     elif hash open &>/dev/null; then
