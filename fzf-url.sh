@@ -26,6 +26,12 @@ fzf_filter() {
 open_url() {
     if [[ -n $custom_open ]]; then
         $custom_open "$@"
+    elif [[ -n ${WSL_DISTRO_NAME:-} || -n ${WSL_INTEROP:-} ]]; then
+        if hash wslview &>/dev/null; then
+            nohup wslview "$@"
+        else
+            nohup explorer.exe "$@"
+        fi
     elif hash xdg-open &>/dev/null; then
         nohup xdg-open "$@"
     elif hash open &>/dev/null; then
