@@ -73,6 +73,16 @@ different command, you can set `@fzf-url-open` to the command you want to use.
 set -g @fzf-url-open "firefox"
 ```
 
+You can copy a URL to the clipboard instead of opening it by pressing `ctrl-y`
+inside the fzf popup (the popup stays open). By default the plugin auto-detects
+the clipboard tool (`clip.exe` on WSL2, `pbcopy` on macOS, `wl-copy` on Wayland,
+`xclip`/`xsel` on X11, or `tmux load-buffer` as a fallback). You can override
+this with:
+
+```tmux
+set -g @fzf-url-copy-cmd 'xclip -selection clipboard'
+```
+
 ### 🔍 Supported URL Types
 
 The plugin automatically recognizes and extracts the following formats:

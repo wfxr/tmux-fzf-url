@@ -9,17 +9,18 @@ version_ge() {
 }
 
 fzf_filter() {
-    local fzf_version fzf_options
+    local fzf_version fzf_options copy_bind
     fzf_version="$(fzf --version 2>/dev/null | awk '{print $1}')"
     fzf_options="$(tmux show -gqv '@fzf-url-fzf-options')"
+    copy_bind="ctrl-y:execute-silent(printf '%s\n' {+} | awk '{print \$2}' | $_copy_cmd)"
 
     if [ -n "$fzf_options" ]; then
         # Custom options are fzf-tmux flags — always use fzf-tmux
-        eval "fzf-tmux $fzf_options"
+        eval "fzf-tmux $fzf_options --bind $(printf '%q' "$copy_bind")"
     elif version_ge "$fzf_version" "0.53.0"; then
-        fzf --tmux center,100%,50% --multi --exit-0 --no-preview
+        fzf --tmux center,100%,50% --multi --exit-0 --no-preview --bind "$copy_bind"
     else
-        fzf-tmux -w 100% -h 50% --multi --exit-0 --no-preview
+        fzf-tmux -w 100% -h 50% --multi --exit-0 --no-preview --bind "$copy_bind"
     fi
 }
 
@@ -72,10 +73,30 @@ extract_gh() {
         sed 's#.#https://github.com/&#'
 }
 
+get_copy_cmd() {
+    local custom="$1"
+    if [[ -n "$custom" ]]; then
+        echo "$custom"
+    elif [[ -n "${WSL_DISTRO_NAME:-}" || -n "${WSL_INTEROP:-}" ]] && hash clip.exe &>/dev/null; then
+        echo "clip.exe"
+    elif hash pbcopy &>/dev/null; then
+        echo "pbcopy"
+    elif [[ -n "${WAYLAND_DISPLAY:-}" ]] && hash wl-copy &>/dev/null; then
+        echo "wl-copy"
+    elif [[ -n "${DISPLAY:-}" ]] && hash xclip &>/dev/null; then
+        echo "xclip -selection clipboard"
+    elif [[ -n "${DISPLAY:-}" ]] && hash xsel &>/dev/null; then
+        echo "xsel --clipboard --input"
+    else
+        echo "tmux load-buffer -"
+    fi
+}
+
 # Source guard: when testing, stop here and don't execute main logic
 [[ "${__FZF_URL_TESTING:-}" == 1 ]] && return 0 2>/dev/null || true
 
 custom_open=$3
+custom_copy=$4
 limit='screen'
 [[ $# -ge 2 ]] && limit=$2
 
@@ -92,17 +113,20 @@ gits=$(echo "$content" | extract_gits)
 gh=$(echo "$content" | extract_gh)
 
 if [[ $# -ge 1 && "$1" != '' ]]; then
-    extras=$(echo "$content" |eval "$1")
+    extras=$(echo "$content" | eval "$1")
 fi
 
-items=$(printf '%s\n' "${urls[@]}" "${wwws[@]}" "${gh[@]}" "${ips[@]}" "${gits[@]}" "${extras[@]}" |
-    grep -v '^$' |
-    sort -u |
-    nl -w3 -s '  '
+items=$(
+    printf '%s\n' "${urls[@]}" "${wwws[@]}" "${gh[@]}" "${ips[@]}" "${gits[@]}" "${extras[@]}" |
+        grep -v '^$' |
+        sort -u |
+        nl -w3 -s '  '
 )
 [ -z "$items" ] && tmux display 'tmux-fzf-url: no URLs found' && exit
 
-fzf_filter <<< "$items" | awk '{print $2}' | \
+_copy_cmd=$(get_copy_cmd "$custom_copy")
+
+fzf_filter <<<"$items" | awk '{print $2}' |
     while read -r chosen; do
         open_url "$chosen" &>"/tmp/tmux-$(id -u)-fzf-url.log"
     done
