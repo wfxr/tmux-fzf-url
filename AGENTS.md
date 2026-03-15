@@ -51,6 +51,7 @@ All options are tmux global options set via `set -g`:
 | `@fzf-url-extra-filter` | `''`       | Custom grep expression for extra patterns|
 | `@fzf-url-fzf-options`  | `''`       | Custom fzf-tmux flags                   |
 | `@fzf-url-open`         | `''`       | Custom command to open URLs              |
+| `@fzf-url-sort`         | `recency`  | Sort order: `recency` or `alpha`         |
 
 ## URL Pattern Types
 

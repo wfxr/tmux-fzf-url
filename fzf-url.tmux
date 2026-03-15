@@ -19,6 +19,7 @@ history_limit="$(tmux_get '@fzf-url-history-limit' 'screen')"
 extra_filter="$(tmux_get '@fzf-url-extra-filter' '')"
 custom_open="$(tmux_get '@fzf-url-open' '')"
 custom_copy="$(tmux_get '@fzf-url-copy-cmd' '')"
+sort_mode="$(tmux_get '@fzf-url-sort' 'recency')"
 
 # -N flag requires tmux >= 3.1
 tmux_version="$(tmux -V | sed 's/[^0-9.]//g')"
@@ -27,4 +28,4 @@ if [ "$(printf '%s\n' "3.1" "$tmux_version" | sort -V | head -n1)" = "3.1" ]; th
     note_flag=(-N "Open URLs with fzf")
 fi
 
-tmux bind-key "${note_flag[@]}" "$key" run -b "$SCRIPT_DIR/fzf-url.sh '$extra_filter' $history_limit '$custom_open' '$custom_copy'";
+tmux bind-key "${note_flag[@]}" "$key" run -b "$SCRIPT_DIR/fzf-url.sh '$extra_filter' $history_limit '$custom_open' '$custom_copy' '$sort_mode'";

@@ -73,6 +73,10 @@ extract_gh() {
         sed 's#.#https://github.com/&#'
 }
 
+reverse_dedup() {
+    awk '{lines[NR]=$0} END{for(i=NR;i>=1;i--)if(!seen[lines[i]]++)print lines[i]}'
+}
+
 get_copy_cmd() {
     local custom="$1"
     if [[ -n "$custom" ]]; then
@@ -97,6 +101,7 @@ get_copy_cmd() {
 
 custom_open=$3
 custom_copy=$4
+sort_mode=${5:-recency}
 limit='screen'
 [[ $# -ge 2 ]] && limit=$2
 
@@ -119,7 +124,7 @@ fi
 items=$(
     printf '%s\n' "${urls[@]}" "${wwws[@]}" "${gh[@]}" "${ips[@]}" "${gits[@]}" "${extras[@]}" |
         grep -v '^$' |
-        sort -u |
+        if [[ "$sort_mode" == "alpha" ]]; then sort -u; else reverse_dedup; fi |
         nl -w3 -s '  '
 )
 [ -z "$items" ] && tmux display 'tmux-fzf-url: no URLs found' && exit

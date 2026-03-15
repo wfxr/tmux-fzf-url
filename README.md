@@ -83,6 +83,13 @@ this with:
 set -g @fzf-url-copy-cmd 'xclip -selection clipboard'
 ```
 
+By default, URLs are sorted by recency (most recently appeared first). To sort
+alphabetically instead:
+
+```tmux
+set -g @fzf-url-sort 'alpha'
+```
+
 ### 🔍 Supported URL Types
 
 The plugin automatically recognizes and extracts the following formats:
