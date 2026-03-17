@@ -153,6 +153,12 @@ else
     content="$(tmux capture-pane -J -p -e -S -"$limit")"
 fi
 
+# Join hard-wrapped URL continuation lines. Some terminal applications (e.g.
+# Claude Code) insert hard newlines when wrapping output to the terminal width.
+# The -J flag only joins tmux soft-wraps, so we also merge indented continuation
+# lines that follow a line containing a URL scheme.
+content="$(printf '%s\n' "$content" | sed -E ':a; /https?:\/\//{N; s/\n\s+//; ta;}; /ftp:\/\//{N; s/\n\s+//; ta;}; /file:\/\//{N; s/\n\s+//; ta;}')"
+
 custom_args=()
 if [[ -n "$custom_pat" ]]; then
     custom_args+=(-e "$custom_pat")
