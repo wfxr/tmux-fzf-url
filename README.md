@@ -112,7 +112,7 @@ The plugin automatically recognizes and extracts the following formats:
 - **IP addresses** — `192.168.1.1`, `10.0.0.1:8080/path`
 - **Git SSH URLs** — `git@github.com:user/repo` (converted to `https://`)
 - **GitHub shorthand** — `'user/repo'` or `"user/repo"` (converted to `https://github.com/`)
-- **Custom patterns** — via `@fzf-url-extra-filter`
+- **Custom patterns** — via `@fzf-url-custom-pat` / `@fzf-url-custom-sub`
 
 ### 💡 Tips
 

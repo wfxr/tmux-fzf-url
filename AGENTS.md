@@ -60,7 +60,7 @@ The plugin extracts the following URL formats from pane content:
 3. **IP addresses** — `192.168.1.1:8080/path` (wrapped as `http://`)
 4. **Git SSH URLs** — `git@github.com:user/repo` (converted to `https://`)
 5. **GitHub shorthand** — `'user/repo'` or `"user/repo"` (converted to `https://github.com/`)
-6. **Custom patterns** — via `@fzf-url-extra-filter`
+6. **Custom patterns** — via `@fzf-url-custom-pat` / `@fzf-url-custom-sub`
 
 ## Development Guidelines
 
