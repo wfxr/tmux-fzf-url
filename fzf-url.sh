@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2016,SC2218
 #===============================================================================
 #   Author: Wenxuan
 #    Email: wenxuangm@gmail.com
 #  Created: 2018-04-06 12:12
 #===============================================================================
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+XRE="$SCRIPT_DIR/bin/xre"
+XRE_VERSION="0.1.1"
+
 version_ge() {
     [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" = "$2" ]
 }
@@ -42,35 +47,70 @@ open_url() {
     fi
 }
 
-strip_ansi() {
-    sed -E 's/\x1B\[[0-9;]*[mK]//g'
+# Standard URLs
+#   https://example.com/path?q=1
+#   ftp://files.example.com/file.tar.gz
+read -r PAT_URL <<'PATTERN'
+(?:https?|ftp|file):/?//[-\w+&@#/%?=~|!:,.;]*[-\w+&@#/%=~|]
+PATTERN
+
+# Git SSH URLs
+#   git@github.com:user/repo.git -> https://github.com/user/repo.git
+#   ssh://git@github.com/user/repo.git -> https://github.com/user/repo.git
+read -r PAT_GIT <<'PATTERN'
+(?:ssh://)?git@([^\s'"`:]+)[:/]([^\s'"`]+)
+PATTERN
+SUB_GIT='https://$1/$2'
+
+# Bare www domains
+#   www.example.com -> http://www.example.com
+#   www.example.com/path -> http://www.example.com/path
+read -r PAT_WWW <<'PATTERN'
+www\.[a-zA-Z](?:-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}(?:/[^\s'"`]+)*
+PATTERN
+SUB_WWW='http://$0'
+
+# IP addresses
+#   192.168.1.1 -> http://192.168.1.1
+#   10.0.0.1:8080/api -> http://10.0.0.1:8080/api
+read -r PAT_IP <<'PATTERN'
+\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?::\d{1,5})?(?:/[^\s'"`]+)*
+PATTERN
+SUB_IP='http://$0'
+
+# GitHub shorthand
+#   'user/repo' -> https://github.com/user/repo
+#   "my-org/my-repo" -> https://github.com/my-org/my-repo
+read -r PAT_GH <<'PATTERN'
+['"]([\w-]+/[\w.-]+)['"]
+PATTERN
+SUB_GH='https://github.com/$1'
+
+ensure_xre() {
+    if [ -x "$XRE" ]; then
+        local current
+        current="$("$XRE" --version 2>/dev/null | awk '{print $2}')"
+        [ "$current" = "$XRE_VERSION" ] && return 0
+        echo "tmux-fzf-url: xre version mismatch (have $current, need $XRE_VERSION), upgrading..." >&2
+    else
+        echo "tmux-fzf-url: 'xre' not found, installing v${XRE_VERSION}..." >&2
+    fi
+    command -v curl &>/dev/null || { echo "tmux-fzf-url: 'curl' is required to install 'xre'" >&2; return 1; }
+    curl -fsSL "https://raw.githubusercontent.com/wfxr/xre/v${XRE_VERSION}/install.sh" | bash -s -- -v "v$XRE_VERSION" -d "$SCRIPT_DIR/bin" || {
+        echo "tmux-fzf-url: failed to install 'xre'" >&2
+        return 1
+    }
+    [ -x "$XRE" ]
 }
 
-extract_urls() {
-    grep -oE '(https?|ftp|file):/?//[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]'
-}
-
-extract_wwws() {
-    grep -oE '(https?://)?www\.[a-zA-Z](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}(/[^[:space:]'"'"'"`]+)*' |
-        grep -vE '^https?://' |
-        sed 's/^\(.*\)$/http:\/\/\1/'
-}
-
-extract_ips() {
-    grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(/[^[:space:]'"'"'"`]+)*' |
-        sed 's/^\(.*\)$/http:\/\/\1/'
-}
-
-extract_gits() {
-    grep -oE '(ssh://)?git@[^[:space:]'"'"'"`]*' |
-        sed 's/:/\//g' |
-        sed 's/^\(ssh\/\/\/\)\{0,1\}git@\(.*\)$/https:\/\/\2/'
-}
-
-extract_gh() {
-    grep -oE "['\"]([_A-Za-z0-9-]*/[_.A-Za-z0-9-]*)['\"]" |
-        sed "s/['\"]//g" |
-        sed 's#.#https://github.com/&#'
+xre_extract() {
+    "$XRE" --strip-ansi \
+        -e "$PAT_URL" \
+        -e "$PAT_GIT" -r "$SUB_GIT" \
+        -e "$PAT_WWW" -r "$SUB_WWW" \
+        -e "$PAT_IP"  -r "$SUB_IP" \
+        -e "$PAT_GH"  -r "$SUB_GH" \
+        "$@"
 }
 
 get_copy_cmd() {
@@ -95,33 +135,31 @@ get_copy_cmd() {
 # Source guard: when testing, stop here and don't execute main logic
 [[ "${__FZF_URL_TESTING:-}" == 1 ]] && return 0 2>/dev/null || true
 
-custom_open=$3
-custom_copy=$4
-limit='screen'
-[[ $# -ge 2 ]] && limit=$2
+if ! ensure_xre; then
+    tmux display 'tmux-fzf-url: xre is required but could not be installed. See https://github.com/wfxr/xre'
+    exit 1
+fi
+
+limit=$1
+custom_open=$2
+custom_copy=$3
+custom_pat=$4
+custom_sub=$5
+[[ -z "$limit" ]] && limit='screen'
 
 if [[ $limit == 'screen' ]]; then
-    content="$(tmux capture-pane -J -p -e | strip_ansi)"
+    content="$(tmux capture-pane -J -p -e)"
 else
-    content="$(tmux capture-pane -J -p -e -S -"$limit" | strip_ansi)"
+    content="$(tmux capture-pane -J -p -e -S -"$limit")"
 fi
 
-urls=$(echo "$content" | extract_urls)
-wwws=$(echo "$content" | extract_wwws)
-ips=$(echo "$content" | extract_ips)
-gits=$(echo "$content" | extract_gits)
-gh=$(echo "$content" | extract_gh)
-
-if [[ $# -ge 1 && "$1" != '' ]]; then
-    extras=$(echo "$content" | eval "$1")
+custom_args=()
+if [[ -n "$custom_pat" ]]; then
+    custom_args+=(-e "$custom_pat")
+    [[ -n "$custom_sub" ]] && custom_args+=(-r "$custom_sub")
 fi
 
-items=$(
-    printf '%s\n' "${urls[@]}" "${wwws[@]}" "${gh[@]}" "${ips[@]}" "${gits[@]}" "${extras[@]}" |
-        grep -v '^$' |
-        sort -u |
-        nl -w3 -s '  '
-)
+items=$(echo "$content" | xre_extract "${custom_args[@]}" | nl -w3 -s '  ')
 [ -z "$items" ] && tmux display 'tmux-fzf-url: no URLs found' && exit
 
 _copy_cmd=$(get_copy_cmd "$custom_copy")

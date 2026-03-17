@@ -14,6 +14,7 @@ Prerequisites:
 * [`tmux`](https://github.com/tmux/tmux)
 * [`fzf`](https://github.com/junegunn/fzf)
 * [`bash`](https://www.gnu.org/software/bash/)
+* [`xre`](https://github.com/wfxr/xre) *(auto-installed on first use)*
 
 **Install using [TPM](https://github.com/tmux-plugins/tpm)**
 
@@ -35,6 +36,20 @@ Then add the following line to your `~/.tmux.conf`:
 run-shell ~/.tmux/plugins/tmux-fzf-url/fzf-url.tmux
 ```
 
+**Legacy version (no `xre` dependency)**
+
+If you prefer the older version that uses `grep` instead of `xre`, pin to the `legacy` tag:
+
+``` tmux
+set -g @plugin 'wfxr/tmux-fzf-url#legacy'
+```
+
+Or for a manual install:
+
+``` bash
+git clone -b legacy https://github.com/wfxr/tmux-fzf-url ~/.tmux/plugins/tmux-fzf-url
+```
+
 ### 📝 Usage
 
 The default key-binding is `u`(of course prefix hit is needed), it can be modified by
@@ -44,11 +59,16 @@ setting value to `@fzf-url-bind` at the tmux config like this:
 set -g @fzf-url-bind 'x'
 ```
 
-You can also extend the capture groups by defining `@fzf-url-extra-filter`:
+You can add a custom extraction pattern via `@fzf-url-custom-pat` (regex) and
+optionally `@fzf-url-custom-sub` (replacement):
 
 ``` tmux
-# simple example for capturing files like 'abc.txt'
-set -g @fzf-url-extra-filter 'grep -oE "\b[a-zA-Z]+\.txt\b"'
+# capture files like 'abc.txt'
+set -g @fzf-url-custom-pat '\b[a-zA-Z]+\.txt\b'
+
+# capture Jira ticket IDs and turn them into URLs
+set -g @fzf-url-custom-pat '[A-Z]+-\d+'
+set -g @fzf-url-custom-sub 'https://jira.example.com/browse/$0'
 ```
 
 The plugin default captures the current screen. You can set `history_limit` to capture
