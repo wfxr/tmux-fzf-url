@@ -156,8 +156,9 @@ fi
 # Join hard-wrapped URL continuation lines. Some terminal applications (e.g.
 # Claude Code) insert hard newlines when wrapping output to the terminal width.
 # The -J flag only joins tmux soft-wraps, so we also merge indented continuation
-# lines that follow a line containing a URL scheme.
-content="$(printf '%s\n' "$content" | awk '
+# lines that follow a line containing a URL scheme. ANSI escape sequences are
+# stripped first so they don't interfere with pattern matching or line joining.
+content="$(printf '%s\n' "$content" | sed 's/\x1b\[[0-9;]*m//g' | awk '
   BEGIN { pending = "" }
   {
     if (pending != "") {
