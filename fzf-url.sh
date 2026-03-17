@@ -91,12 +91,32 @@ ensure_xre() {
         local current
         current="$("$XRE" --version 2>/dev/null | awk '{print $2}')"
         [ "$current" = "$XRE_VERSION" ] && return 0
-        echo "tmux-fzf-url: xre version mismatch (have $current, need $XRE_VERSION), upgrading..." >&2
+        local msg="upgrading xre to v${XRE_VERSION}"
     else
-        echo "tmux-fzf-url: 'xre' not found, installing v${XRE_VERSION}..." >&2
+        local msg="installing xre v${XRE_VERSION}"
     fi
+
     command -v curl &>/dev/null || { echo "tmux-fzf-url: 'curl' is required to install 'xre'" >&2; return 1; }
-    curl -fsSL "https://raw.githubusercontent.com/wfxr/xre/v${XRE_VERSION}/install.sh" | bash -s -- -v "v$XRE_VERSION" -d "$SCRIPT_DIR/bin" || {
+
+    local install_cmd
+    printf -v install_cmd "curl -fsSL %q | bash -s -- -v %q -d %q" \
+        "https://raw.githubusercontent.com/wfxr/xre/v${XRE_VERSION}/install.sh" \
+        "v$XRE_VERSION" "$SCRIPT_DIR/bin"
+
+    if [ -n "$TMUX" ]; then
+        local tmux_version
+        tmux_version="$(tmux -V | sed 's/[^0-9.]//g')"
+        tmux display "tmux-fzf-url: ${msg}..."
+        if version_ge "$tmux_version" "3.2"; then
+            tmux display-popup -E -w 80% -h 60% -T " tmux-fzf-url " \
+                "echo 'tmux-fzf-url: ${msg}...' && $install_cmd"
+        else
+            bash -c "$install_cmd"
+        fi
+    else
+        echo "tmux-fzf-url: ${msg}..." >&2
+        bash -c "$install_cmd"
+    fi || {
         echo "tmux-fzf-url: failed to install 'xre'" >&2
         return 1
     }
