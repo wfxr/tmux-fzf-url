@@ -34,7 +34,7 @@ The plugin consists of two scripts:
 2. **`fzf-url.sh`** — Core script invoked at runtime. It:
    - Captures the current tmux pane content (screen or scrollback)
    - Pipes content through `xre --strip-ansi` which handles ANSI stripping, multi-pattern URL extraction (with priority-based overlap prevention), replacement, and deduplication in a single pass
-   - Optionally applies a user-defined extra filter
+   - Optionally applies a user-defined custom pattern (`@fzf-url-custom-pat` / `@fzf-url-custom-sub`)
    - Numbers results and presents them via fzf for interactive selection (version-aware: `fzf --tmux` for >= 0.53.0, otherwise `fzf-tmux`)
    - Opens selected URLs using `xdg-open`, `open`, `$BROWSER`, or a custom command
 
