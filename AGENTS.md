@@ -6,8 +6,8 @@
 
 ## Tech Stack
 
-- **Language**: Bash
-- **Dependencies**: `fzf`, `tmux`, `bash`
+- **Language**: Bash + Rust (via [xre](https://github.com/wfxr/xre))
+- **Dependencies**: `fzf`, `tmux`, `bash`, `xre` (auto-installed to `$SCRIPT_DIR/bin/`)
 - **Platform**: Linux / macOS
 
 ## Repository Structure
@@ -33,11 +33,9 @@ The plugin consists of two scripts:
 
 2. **`fzf-url.sh`** — Core script invoked at runtime. It:
    - Captures the current tmux pane content (screen or scrollback)
-   - Strips ANSI escape sequences
-   - Extracts URLs using multiple regex patterns (HTTP/HTTPS, www, IP, git SSH, GitHub shorthand)
+   - Pipes content through `xre --strip-ansi` which handles ANSI stripping, multi-pattern URL extraction (with priority-based overlap prevention), replacement, and deduplication in a single pass
    - Optionally applies a user-defined extra filter
-   - Deduplicates and numbers results
-   - Presents them via fzf for interactive selection (version-aware: `fzf --tmux` for >= 0.53.0, otherwise `fzf-tmux`)
+   - Numbers results and presents them via fzf for interactive selection (version-aware: `fzf --tmux` for >= 0.53.0, otherwise `fzf-tmux`)
    - Opens selected URLs using `xdg-open`, `open`, `$BROWSER`, or a custom command
 
 ## Configuration Options
@@ -48,9 +46,10 @@ All options are tmux global options set via `set -g`:
 |--------------------------|------------|------------------------------------------|
 | `@fzf-url-bind`         | `u`        | Key binding (after tmux prefix)          |
 | `@fzf-url-history-limit`| `screen`   | Scrollback lines to capture              |
-| `@fzf-url-extra-filter` | `''`       | Custom grep expression for extra patterns|
 | `@fzf-url-fzf-options`  | `''`       | Custom fzf-tmux flags                   |
 | `@fzf-url-open`         | `''`       | Custom command to open URLs              |
+| `@fzf-url-custom-pat`   | `''`       | Custom xre regex pattern for extraction  |
+| `@fzf-url-custom-sub`   | `''`       | Replacement template for custom pattern  |
 
 ## URL Pattern Types
 
@@ -65,11 +64,11 @@ The plugin extracts the following URL formats from pane content:
 
 ## Development Guidelines
 
-- Keep the codebase minimal — the entire plugin is two short shell scripts.
+- Keep the codebase minimal — the entire plugin is two short shell scripts plus `xre` for extraction.
 - The scripts use Bash features (`[[ ]]`, `$(...)`, etc.) and require `bash`.
-- URL regex patterns in `fzf-url.sh` are intentionally kept as `grep -oE` expressions for simplicity.
+- URL extraction is handled by `xre` via the `xre_extract` wrapper function. Pattern priority ensures higher-priority patterns (e.g., full URLs) consume byte ranges before lower-priority patterns (e.g., bare `www.` domains) can match overlapping text.
 - When modifying fzf invocation, maintain backward compatibility with older fzf versions (the `version_ge` function handles version detection).
-- Pane content is captured via `tmux capture-pane -J -p -e` and ANSI sequences are stripped with `sed`.
+- Pane content is captured via `tmux capture-pane -J -p -e` and passed raw to `xre --strip-ansi`.
 - Log output from URL opening goes to `/tmp/tmux-$(id -u)-fzf-url.log`.
 
 ## Testing
@@ -84,7 +83,7 @@ git submodule update --init --recursive
 ./test/libs/bats-core/bin/bats test/*.bats
 ```
 
-The test suite covers each extraction function (`extract_urls`, `extract_wwws`, `extract_ips`, `extract_gits`, `extract_gh`), `strip_ansi`, `version_ge`, and integration scenarios. `fzf-url.sh` exposes a source guard (`__FZF_URL_TESTING=1`) so tests can source the functions without executing the main logic.
+The test suite covers the unified `xre_extract` function (all URL types, dedup, ANSI stripping), `version_ge`, and integration scenarios. URL extraction logic is also tested by `xre`'s own Rust test suite. `fzf-url.sh` exposes a source guard (`__FZF_URL_TESTING=1`) so tests can source the functions without executing the main logic.
 
 GitHub Actions CI runs the tests on both ubuntu and macOS to catch GNU/BSD compatibility issues.
 
