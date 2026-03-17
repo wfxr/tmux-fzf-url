@@ -104,19 +104,11 @@ ensure_xre() {
         "v$XRE_VERSION" "$SCRIPT_DIR/bin"
 
     if [ -n "$TMUX" ]; then
-        local tmux_version
-        tmux_version="$(tmux -V | sed 's/[^0-9.]//g')"
         tmux display "tmux-fzf-url: ${msg}..."
-        if version_ge "$tmux_version" "3.2"; then
-            tmux display-popup -E -w 80% -h 60% -T " tmux-fzf-url " \
-                "echo 'tmux-fzf-url: ${msg}...' && $install_cmd"
-        else
-            bash -c "$install_cmd"
-        fi
     else
         echo "tmux-fzf-url: ${msg}..." >&2
-        bash -c "$install_cmd"
-    fi || {
+    fi
+    bash -c "$install_cmd" || {
         echo "tmux-fzf-url: failed to install 'xre'" >&2
         return 1
     }
