@@ -28,4 +28,5 @@ if [ "$(printf '%s\n' "3.1" "$tmux_version" | sort -V | head -n1)" = "3.1" ]; th
     note_flag=(-N "Open URLs with fzf")
 fi
 
-tmux bind-key "${note_flag[@]}" "$key" run -b "$SCRIPT_DIR/fzf-url.sh '$history_limit' '$custom_open' '$custom_copy' '$custom_pat' '$custom_sub'";
+cmd=$(printf '%q ' "$SCRIPT_DIR/fzf-url.sh" "$history_limit" "$custom_open" "$custom_copy" "$custom_pat" "$custom_sub")
+tmux bind-key "${note_flag[@]}" "$key" run -b "$cmd"
