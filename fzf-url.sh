@@ -159,7 +159,7 @@ if [[ -n "$custom_pat" ]]; then
     [[ -n "$custom_sub" ]] && custom_args+=(-r "$custom_sub")
 fi
 
-items=$(echo "$content" | xre_extract "${custom_args[@]}" | nl -w3 -s '  ')
+items=$(printf '%s\n' "$content" | xre_extract "${custom_args[@]}" | nl -w3 -s '  ')
 [ -z "$items" ] && tmux display 'tmux-fzf-url: no URLs found' && exit
 
 _copy_cmd=$(get_copy_cmd "$custom_copy")
