@@ -115,6 +115,31 @@ ensure_xre() {
     [ -x "$XRE" ]
 }
 
+join_wrapped_urls() {
+    sed 's/\x1b\[[0-9;]*m//g' | awk '
+  BEGIN { pending = "" }
+  {
+    if (pending != "") {
+      if ($0 ~ /^[[:space:]]+/) {
+        sub(/^[[:space:]]+/, "", $0)
+        pending = pending $0
+        next
+      }
+      print pending
+      pending = ""
+    }
+    if ($0 ~ /(https?|ftp|file):\/\//) {
+      pending = $0
+      next
+    }
+    print
+  }
+  END {
+    if (pending != "") print pending
+  }
+'
+}
+
 xre_extract() {
     "$XRE" --strip-ansi \
         -e "$PAT_URL" \
@@ -164,6 +189,13 @@ if [[ $limit == 'screen' ]]; then
 else
     content="$(tmux capture-pane -J -p -e -S -"$limit")"
 fi
+
+# Join hard-wrapped URL continuation lines. Some terminal applications (e.g.
+# Claude Code) insert hard newlines when wrapping output to the terminal width.
+# The -J flag only joins tmux soft-wraps, so we also merge indented continuation
+# lines that follow a line containing a URL scheme. ANSI escape sequences are
+# stripped first so they don't interfere with pattern matching or line joining.
+content="$(printf '%s\n' "$content" | join_wrapped_urls)"
 
 custom_args=()
 if [[ -n "$custom_pat" ]]; then
