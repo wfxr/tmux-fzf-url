@@ -115,6 +115,9 @@ ensure_xre() {
     [ -x "$XRE" ]
 }
 
+# Extract URLs from stdin to stdout, stripping ANSI escapes and deduplicating.
+# Pattern order determines match priority. GitHub shorthand is enabled unless
+# github_shorthand=off. Additional arguments are forwarded to xre.
 xre_extract() {
     local github_args=()
     if [[ "${github_shorthand:-on}" != off ]]; then
