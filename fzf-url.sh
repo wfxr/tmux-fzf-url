@@ -115,13 +115,20 @@ ensure_xre() {
     [ -x "$XRE" ]
 }
 
+# Extract URLs from stdin to stdout, stripping ANSI escapes and deduplicating.
+# Pattern order determines match priority. GitHub shorthand is enabled unless
+# github_shorthand=off. Additional arguments are forwarded to xre.
 xre_extract() {
+    local github_args=()
+    if [[ "${github_shorthand:-on}" != off ]]; then
+        github_args=(-e "$PAT_GH" -r "$SUB_GH")
+    fi
     "$XRE" --strip-ansi \
         -e "$PAT_URL" \
         -e "$PAT_GIT" -r "$SUB_GIT" \
         -e "$PAT_WWW" -r "$SUB_WWW" \
         -e "$PAT_IP"  -r "$SUB_IP" \
-        -e "$PAT_GH"  -r "$SUB_GH" \
+        "${github_args[@]}" \
         "$@"
 }
 
@@ -157,6 +164,7 @@ custom_open=$2
 custom_copy=$3
 custom_pat=$4
 custom_sub=$5
+github_shorthand="$(tmux show -gqv '@fzf-url-github-shorthand')"
 [[ -z "$limit" ]] && limit='screen'
 
 if [[ $limit == 'screen' ]]; then

@@ -128,6 +128,14 @@ setup() {
     assert_line --index 2 "http://192.168.1.1"
 }
 
+@test "extract: disabled GitHub shorthand ignores git refs but preserves URLs" {
+    run bash -c 'github_shorthand=off; printf "%s\n" "Your branch is up to date with '\''origin/main'\''." "\"user/repo\"" "https://github.com/IdoKendo/dotfiles" "git@github.com:user/repo.git" | xre_extract'
+    assert_success
+    assert_line --index 0 "https://github.com/IdoKendo/dotfiles"
+    assert_line --index 1 "https://github.com/user/repo.git"
+    [ "${#lines[@]}" -eq 2 ]
+}
+
 @test "extract: deduplicates URLs" {
     input=$'https://example.com\nhttps://example.com\nhttps://example.com'
     run bash -c "echo '$input' | xre_extract"

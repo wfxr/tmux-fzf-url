@@ -109,6 +109,15 @@ set -g @fzf-url-copy-cmd 'xclip -selection clipboard'
 
 ### 🔍 Supported URL Types
 
+To disable GitHub shorthand detection (which also matches quoted Git refs like
+`'origin/main'`), set:
+
+```tmux
+set -g @fzf-url-github-shorthand 'off'
+```
+
+The default is `on`. Full URLs and Git SSH URLs are unaffected.
+
 The plugin automatically recognizes and extracts the following formats:
 
 - **Standard URLs** — `https://`, `http://`, `ftp://`, `file://`
